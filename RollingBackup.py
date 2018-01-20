@@ -6,10 +6,16 @@
 from shutil import copy, rmtree
 from datetime import datetime
 from os import listdir, makedirs
+import logging
 
 targets = ["C:/FULL/PATH/HERE/FILE.txt"]
 
 destination = "C:/PATH/TO/ARCHIVE"
+
+logging.basicConfig(
+    filename="backuplog.log",
+    level=logging.DEBUG,
+    format="%(asctime)s:%(levelname)s:%(message)s")
 
 
 def dirname():
@@ -27,16 +33,18 @@ def rm_old_dir():
             dirs[datetime_object] = i
 
         except ValueError:
-            print("ValueError: {} could not be converted into datetime object".format(i))
+            logging.error("ValueError: {} could not be converted into datetime object".format(i))
 
         except:
-            print("Unknown error occurred while creating list of dicts holding datetime_object:directory.")
-            print("Currently iterating on {}".format(i))
-            print("Iterating over these dirs: {}".format(listdir(destination)))
-            print("List of successfully created dir:datetime dicts: {}".format(dirs))
+            logging.critical("Unknown error occurred while creating list of dicts holding datetime_object:directory."
+                             "\#\# DEBUG INFO\#\#"
+                             "Currently iterating on {}\nIterating over these dirs: {}\nList of successfully created "
+                             "dir:datetime dicts: {}".format(i, listdir(destination), dirs))
 
+    oldest_dir = datetime.now()
     if len(dirs) >= 8:
-        oldest_dir = datetime.now()
+        if len(dirs) > 8:
+            logging.warning("Destination contains more than eight backups.")
         for key in dirs.items():
             if key[0] < oldest_dir:
                 oldest_dir = key[0]
